@@ -1,0 +1,12 @@
+{
+    "name": "Api Tickets",
+    "configDB" : {
+        "HOST" : "mongodb://localhost:27017/arz"
+
+    },
+    "configToken" : {
+        "SEED" :"secret",
+        "exp"  : "24h"
+    },
+    "PORT":"8080"
+}

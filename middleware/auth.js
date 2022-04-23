@@ -1,0 +1,15 @@
+const jwt = require('jsonwebtoken');
+const config = require('config');
+
+function verifyToken (req, res, next) {
+    const token = req.get('Authorization');
+    jwt.verify(token, config.get('configToken.SEED'),(err, decoded) => {
+        if(err){
+            return res.status(401).send('You are not authorized to view this page');
+        }
+        req.author = decoded;
+        next();
+    })
+}
+
+module.exports = verifyToken;

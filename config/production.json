@@ -1,0 +1,10 @@
+{
+    "name": "Api Tickets",
+    "configDB" : {
+
+    },
+    "configToken" : {
+        "SEED" :"secret",
+        "exp"  : "24h"
+    }
+}
