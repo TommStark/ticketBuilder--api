@@ -40,7 +40,6 @@ route.post('/',(req,res) => {
 })
 
 route.put('/login', (req,res) => {
-    console.log('req: ', req.body);
     Author.findOne({email:req.body.email})
     .then(author => {
         console.log('author: ', author);

@@ -11,7 +11,7 @@ const cors = require('cors');
 const port = process.env.PORT || '8080';
 process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
 
-const urlDB =  process.env.NODE_ENV ? 'mongodb://localhost:27017/arz' :'mongodb+srv://tommStark:LCIZvTNIPkJlM3BN@cluster0.5rpp7.mongodb.net/arz-ticket'
+const urlDB =  process.env.NODE_ENV === 'dev' ? 'mongodb://localhost:27017/arz' :'mongodb+srv://tommStark:LCIZvTNIPkJlM3BN@cluster0.5rpp7.mongodb.net/arz-ticket'
 
 // DB connection
 main()
