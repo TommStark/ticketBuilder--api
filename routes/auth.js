@@ -39,15 +39,21 @@ route.post('/',(req,res) => {
     })
 })
 
-route.get('/login',verifyToken, (req,res) => {
-    Author.findOne({email:req.author.email}, (err,author) => {
-        if(err)
-            return res.status(500).json({
-                logged_in: false,
-                error:'User is not logged'
-            });
+route.put('/login', (req,res) => {
+    console.log('req: ', req.body);
+    Author.findOne({email:req.body.email})
+    .then(author => {
+        console.log('author: ', author);
         if(author){
-            res.json({
+            const token = req.get('Authorization');
+                jwt.verify(token, config.get('configToken.SEED'),(err, decoded) => {
+            if(err){
+                return res.status(200).json({
+                    logged_in: false,
+                    msg:'you are not logged in',
+                });
+            }
+            return res.status(200).json({
                 logged_in: true,
                 author:{
                     _id : author._id,
@@ -55,8 +61,20 @@ route.get('/login',verifyToken, (req,res) => {
                     email: author.email,
                 }
             });
+        })}
+        else {
+            res.status(400).json({
+                msg :'user not found',
+                err : err
+            })
         }
     })
+    .catch(err => {
+        res.status(400).json({
+            msg :'Bad Request',
+            err : err
+        })
+    });
 })
 
 module.exports = route;
