@@ -42,7 +42,6 @@ route.post('/',(req,res) => {
 route.put('/login', (req,res) => {
     Author.findOne({email:req.body.email})
     .then(author => {
-        console.log('author: ', author);
         if(author){
             const token = req.get('Authorization');
                 jwt.verify(token, 'secret',(err, decoded) => {

@@ -115,7 +115,6 @@ async function deactivateAuthor( id ){
 }
 
 async function updateAuthor(ticketId, authorEmail){
-    console.log('authorEmail: ', authorEmail);
     if(!ticketId){
         throw new Error(err);
     }
@@ -125,9 +124,7 @@ async function updateAuthor(ticketId, authorEmail){
             tickets : ticketId
         }
     },{new:true});
-    
-    console.log('author: ', author);
-    return author;
+        return author;
 }
 
 async function createAuthor(body){
