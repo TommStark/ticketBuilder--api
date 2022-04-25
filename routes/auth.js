@@ -19,7 +19,7 @@ route.post('/',(req,res) => {
                             msj: 'user or password incorrect',
                 });
 
-            const jwToken = jwt.sign({_id:user._id, name:user.name, email:user.email}, config.get('configToken.SEED'), { expiresIn:  config.get('configToken.exp')});
+            const jwToken = jwt.sign({_id:user._id, name:user.name, email:user.email}, 'secret', { expiresIn:  "24h"});
             
             res.json({
                 author:{
@@ -46,7 +46,7 @@ route.put('/login', (req,res) => {
         console.log('author: ', author);
         if(author){
             const token = req.get('Authorization');
-                jwt.verify(token, config.get('configToken.SEED'),(err, decoded) => {
+                jwt.verify(token, 'secret',(err, decoded) => {
             if(err){
                 return res.status(200).json({
                     logged_in: false,

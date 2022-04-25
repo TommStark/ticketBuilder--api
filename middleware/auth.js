@@ -3,7 +3,7 @@ const config = require('config');
 
 function verifyToken (req, res, next) {
     const token = req.get('Authorization');
-    jwt.verify(token, config.get('configToken.SEED'),(err, decoded) => {
+    jwt.verify(token, 'secret',(err, decoded) => {
         if(err){
             return res.status(401).json({
                 msg:'You are not authorized to view this page',
