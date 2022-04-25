@@ -7,6 +7,9 @@ const mongoose = require('mongoose');
 const config = require('config');
 const cors = require('cors');
 
+
+const port = process.env.PORT || '8080';
+
 // DB connection
 main()
 .then (console.log('DB connected... '))
@@ -34,6 +37,6 @@ app.use('/api/author',author);
 app.use('/api/project',project);
 
 
-const port = config.get('PORT') || 8080;
+// const port = config.get('PORT') || 8080;
 
-app.listen(port, () => { console.log ("API OK")});
+app.listen(port, () => { console.log ("API OK, running:", port)});
