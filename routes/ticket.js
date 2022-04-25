@@ -38,12 +38,26 @@ route.post('/',verifyToken, (req,res) => {
 
 });
 
+route.put('/:id', verifyToken, (req,res) => {
+    const result = updateTicketDateAndStatus(req.params.id);
+    result
+    .then( ticket => {
+        ticket
+        res.json({ticket})
+    })
+    .catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
+});
+
 async function getTickets(){
     return await Ticket.find().populate('author', 'name -_id').populate('project', 'name -_id');
 }
 
 async function getTicketsById(id){
-    return await Ticket.find({_id:id}).populate('author', 'name -_id').populate('project', 'name -_id')
+    return await Ticket.find({_id:id}).populate('author', 'name -_id').populate('project', 'name -_id');
 }
 
 async function createTicket(req){
@@ -57,5 +71,16 @@ async function createTicket(req){
     });
     return await ticket.save();
 }
+
+async function updateTicketDateAndStatus(ticketId){
+    if(!ticketId){
+        throw new Error(err);
+    }
+    
+    let newTicket = await Ticket.findOneAndUpdate({_id:ticketId}, { state: true, end_date:new Date() },{new:true});
+
+    return newTicket;
+}
+
 
 module.exports = route

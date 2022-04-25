@@ -28,7 +28,11 @@ const ticketScheme = new mongoose.Schema({
         ref: 'Author',
         required: true
     },
-    date    : {
+    start_date    : {
+        type:Date, 
+        default:Date.now
+    },
+    end_date    : {
         type:Date, 
         default:Date.now
     },
