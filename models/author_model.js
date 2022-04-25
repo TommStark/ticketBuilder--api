@@ -12,7 +12,7 @@ const authorScheme = new mongoose.Schema({
     },
     password : {
         type: String,
-        default: 'arzion123'
+        required: true
     },
     state : {
         type: Boolean,

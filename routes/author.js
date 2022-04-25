@@ -49,11 +49,11 @@ route.post('/', (req,res) => {
             return res.status(500).json({error:'internal server error'});
         if(auth){
             return res.status(400).json({
-                msj:'Author already exists'
+                msj:'user already exists'
             })
         }
     
-        const {error,value} = schema.validate({ name: body.name, email: body.email });
+        const {error,value} = schema.validate({ name: body.name, email: body.email, password:body.password });
 
         if(!error){
             const result = createAuthor(body);
@@ -131,7 +131,7 @@ async function createAuthor(body){
     let author = new Author({
         email    : body.email,
         name     : body.name,
-        password : bcrypt.hashSync('arzion123',10)
+        password : bcrypt.hashSync(body.password,10)
         
     });
     return await author.save();
