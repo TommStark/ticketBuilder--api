@@ -4,11 +4,13 @@ const authorScheme = new mongoose.Schema({
     email : {
         type: String,
         required: true,
-        unique : true
+        unique : true,
+        lowercase: true,
     },
     name : {
         type: String,
-        required: true
+        required: true,
+        lowercase: true
     },
     password : {
         type: String,
@@ -26,6 +28,11 @@ const authorScheme = new mongoose.Schema({
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'Ticket',
         default: undefined
+    },
+    cr_tickets :{
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'Ticket',
+        default : undefined,
     }
 });
 

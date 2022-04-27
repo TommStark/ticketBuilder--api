@@ -19,8 +19,7 @@ route.post('/',(req,res) => {
                             msj: 'user or password incorrect',
                 });
 
-            const jwToken = jwt.sign({_id:user._id, name:user.name, email:user.email}, 'secret', { expiresIn:  "24h"});
-            
+            const jwToken = jwt.sign({_id:user._id, name:user.name, email:user.email}, 'secret', { expiresIn:  "24h"});            
             res.json({
                 author:{
                     _id : user._id,
@@ -39,8 +38,11 @@ route.post('/',(req,res) => {
     })
 })
 
-route.put('/login', (req,res) => {
-    Author.findOne({email:req.body.email})
+route.get('/login', (req,res) => {
+    const token = req.get('Authorization');
+    const decodedToken = jwt.decode(token);
+
+    Author.findOne({email:decodedToken?.email})
     .then(author => {
         if(author){
             const token = req.get('Authorization');
@@ -69,8 +71,8 @@ route.put('/login', (req,res) => {
     })
     .catch(err => {
         res.status(400).json({
-            msg :'Bad Request',
-            err : err
+            logged_in: false,
+            msg:'you are not logged in'
         })
     });
 })
