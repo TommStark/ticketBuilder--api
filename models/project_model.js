@@ -17,6 +17,10 @@ const projectScheme = new mongoose.Schema({
         type: String,
         required : true,
     },
+    color : {
+        type: String,
+        required : true,
+    },
     tickets : {
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'Ticket',

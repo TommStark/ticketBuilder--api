@@ -58,7 +58,7 @@ route.post('/', (req,res) => {
         if(!error){
             const result = createAuthor(body);
             result
-            .then( data => res.json({name: data.name, email: data.email}))
+            .then( data => res.json({name: data.name, email: data.email, img: data.img}))
             .catch(err => {
                 res.status(400).json({
                     err
@@ -131,6 +131,7 @@ async function createAuthor(body){
     let author = new Author({
         email    : body.email,
         name     : body.name,
+        img      : body.img,
         password : bcrypt.hashSync(body.password,10)
         
     });

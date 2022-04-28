@@ -10,7 +10,6 @@ const authorScheme = new mongoose.Schema({
     name : {
         type: String,
         required: true,
-        lowercase: true
     },
     password : {
         type: String,
@@ -20,9 +19,9 @@ const authorScheme = new mongoose.Schema({
         type: Boolean,
         default : true,
     },
-    image : {
+    img : {
         type: String,
-        required : false,
+        required : true,
     },
     tickets : {
         type: [mongoose.Schema.Types.ObjectId],

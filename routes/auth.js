@@ -10,7 +10,7 @@ route.post('/',(req,res) => {
     Author.findOne({email:req.body.email}, (err,user) => {
         if(err)
             return res.status(500).json({error:'internal server error'});
-        if(user){
+        if(user && (req.body.password && req.body.email) ){
             const validPass = bcrypt.compareSync(req.body.password, user.password);
             
             if(!validPass)
@@ -19,12 +19,14 @@ route.post('/',(req,res) => {
                             msj: 'user or password incorrect',
                 });
 
-            const jwToken = jwt.sign({_id:user._id, name:user.name, email:user.email}, 'secret', { expiresIn:  "24h"});            
+            const jwToken = jwt.sign({_id:user._id, name:user.name, email:user.email, img:user.img }, 'secret', { expiresIn:  "24h"});            
+            
             res.json({
                 author:{
                     _id : user._id,
                     name: user.name,
                     email: user.email,
+                    img :user.img,
                     jwToken
                 }
             });
