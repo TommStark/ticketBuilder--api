@@ -60,14 +60,20 @@ Dclient.on('messageReactionAdd', async (reaction, user) => {
     Dclient.channels.cache.get(reaction.message.channelId).messages.fetch(reaction.message.id)
         .then(msg =>{
             const receivedEmbed = msg.embeds[0];
+
+            const Authors = (receivedEmbed.fields[3].value).split(',');
+            const checks = parseInt(receivedEmbed.fields[2].value);
+
             if(reaction.emoji.name === '👀'){
-                if(receivedEmbed.fields[3].value === '*') {
-                    receivedEmbed.fields[3].value = user.username;
-                } else {
-                    receivedEmbed.fields[3].value = `${receivedEmbed.fields[3].value}, ${user.username}`;
+                if( (Authors[0] === '*' && Authors.length <= 1) || (Authors[0] !== '*' && Authors.length < checks)){
+                    if(receivedEmbed.fields[3].value === '*') { 
+                        receivedEmbed.fields[3].value = user.username;
+                    } else {
+                        receivedEmbed.fields[3].value = `${receivedEmbed.fields[3].value},${user.username}`;
+                    }
+                    const exampleEmbed = new MessageEmbed(receivedEmbed);
+                    msg.edit({ embeds: [exampleEmbed] });
                 }
-                const exampleEmbed = new MessageEmbed(receivedEmbed);
-                msg.edit({ embeds: [exampleEmbed] });
             }
 
             if(reaction.emoji.name === '❌')
@@ -93,13 +99,18 @@ Dclient.on('messageReactionRemove', async (reaction, user) => {
     .then(msg =>{
         const receivedEmbed = msg.embeds[0];
         if(reaction.emoji.name === '👀'){
-            const newReviewers = (receivedEmbed.fields[3].value).replace(user.username, '');
-            receivedEmbed.fields[3].value = newReviewers;
+            const newReviewers = (receivedEmbed.fields[3].value).split(',').filter(name => name !== `${user.username}`).join(',');
+            receivedEmbed.fields[3].value = !!newReviewers ? newReviewers : '*' ;
             const exampleEmbed = new MessageEmbed(receivedEmbed);
+            msg.edit({ embeds: [exampleEmbed] });
+        }
+
+        if(reaction.emoji.name === '⚛️'){
+            const exampleEmbed = new MessageEmbed(receivedEmbed).setThumbnail('https://cdn.discordapp.com/icons/937685188308267008/3b0034ce663b8ed109c2e7d5e8c54175.webp?size=96')
             msg.edit({ embeds: [exampleEmbed] });
         }
     })
 })
-
+// 
 app.listen(port, () => { console.log ("API OK, running:", port)});
 
