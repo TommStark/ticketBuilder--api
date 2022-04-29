@@ -74,9 +74,9 @@ Dclient.on('messageReactionAdd', async (reaction, user) => {
                         msg.edit({ embeds: [exampleEmbed] });
                     }
                 }
-    
-                if(reaction.emoji.name === '❌')
+                if(reaction.emoji.name === '❌' && reaction.count === 2){
                     msg.delete();
+                }
     
                 if(reaction.emoji.name === '⚛️'){
                     const exampleEmbed = new MessageEmbed(receivedEmbed).setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Yes_Check_Circle.svg/2048px-Yes_Check_Circle.svg.png')
@@ -84,7 +84,7 @@ Dclient.on('messageReactionAdd', async (reaction, user) => {
                 }
             }
             catch{
-                console.log('failed to manage emojis')
+                console.log('failed to manage add emojis, not embed msg')
             }
         });
 })
@@ -100,6 +100,7 @@ Dclient.on('messageReactionRemove', async (reaction, user) => {
 	}
     Dclient.channels.cache.get(reaction.message.channelId).messages.fetch(reaction.message.id)
     .then(msg =>{
+        try{
         const receivedEmbed = msg.embeds[0];
         if(reaction.emoji.name === '👀'){
             const newReviewers = (receivedEmbed.fields[3].value).split(',').filter(name => name !== `${user.username}`).join(',');
@@ -112,7 +113,24 @@ Dclient.on('messageReactionRemove', async (reaction, user) => {
             const exampleEmbed = new MessageEmbed(receivedEmbed).setThumbnail(receivedEmbed.author.iconURL)
             msg.edit({ embeds: [exampleEmbed] });
         }
+    }catch{
+        console.log('failed to manage remove emojis, not embed msg')
+        }
     })
+})
+
+Dclient.on('messageCreate', async (msg) => {    
+    if(msg.content === '/ticket-help'){
+        msg.reply({
+            content:`
+            Emoji commands:\n
+            👀 : Assigns you as reviewer (the checks field determines the maximum).\n
+            ⚛️  : Change the ticket to merged (modify the image).\n
+            ❌ : Removes the ticket (3 reactions are needed).\n
+            `
+        })
+    }
+
 })
 
 app.listen(port, () => { console.log ("API OK, running:", port)});
