@@ -63,7 +63,6 @@ Dclient.on('messageReactionAdd', async (reaction, user) => {
 
             const Authors = (receivedEmbed.fields[3].value).split(',');
             const checks = parseInt(receivedEmbed.fields[2].value);
-
             if(reaction.emoji.name === '👀'){
                 if( (Authors[0] === '*' && Authors.length <= 1) || (Authors[0] !== '*' && Authors.length < checks)){
                     if(receivedEmbed.fields[3].value === '*') { 
@@ -105,8 +104,8 @@ Dclient.on('messageReactionRemove', async (reaction, user) => {
             msg.edit({ embeds: [exampleEmbed] });
         }
 
-        if(reaction.emoji.name === '⚛️'){
-            const exampleEmbed = new MessageEmbed(receivedEmbed).setThumbnail('https://cdn.discordapp.com/icons/937685188308267008/3b0034ce663b8ed109c2e7d5e8c54175.webp?size=96')
+        if(reaction.emoji.name === '⚛️' && reaction.count === 0){
+            const exampleEmbed = new MessageEmbed(receivedEmbed).setThumbnail('https://static.wikia.nocookie.net/esfuturama/images/9/9b/Roberto.png/revision/latest/scale-to-width-down/453?cb=20130123221057')
             msg.edit({ embeds: [exampleEmbed] });
         }
     })

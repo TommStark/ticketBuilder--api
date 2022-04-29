@@ -31,7 +31,7 @@ async function sendSMS (ticket,user){
 	.setTitle(`Project ${project}`)
 	.setAuthor({ name: user.name, iconURL: user.img})
 	.setDescription(details)
-	.setThumbnail(' https://cdn.discordapp.com/icons/937685188308267008/3b0034ce663b8ed109c2e7d5e8c54175.webp?size=96')
+	.setThumbnail(user.img)
 	.addFields(
 		{ name: 'Pull Request: ', value: pr },
         { name: 'Jira: ', value: vpdc },
