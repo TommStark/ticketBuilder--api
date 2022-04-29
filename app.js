@@ -59,28 +59,32 @@ Dclient.on('messageReactionAdd', async (reaction, user) => {
 	}
     Dclient.channels.cache.get(reaction.message.channelId).messages.fetch(reaction.message.id)
         .then(msg =>{
-            const receivedEmbed = msg.embeds[0];
-
-            const Authors = (receivedEmbed.fields[3].value).split(',');
-            const checks = parseInt(receivedEmbed.fields[2].value);
-            if(reaction.emoji.name === '👀'){
-                if( (Authors[0] === '*' && Authors.length <= 1) || (Authors[0] !== '*' && Authors.length < checks)){
-                    if(receivedEmbed.fields[3].value === '*') { 
-                        receivedEmbed.fields[3].value = user.username;
-                    } else {
-                        receivedEmbed.fields[3].value = `${receivedEmbed.fields[3].value},${user.username}`;
+            try{
+                const receivedEmbed = msg.embeds[0];
+                const Authors = (receivedEmbed?.fields[3]?.value)?.split(',');
+                const checks = parseInt(receivedEmbed.fields[2].value);
+                if(reaction.emoji.name === '👀'){
+                    if( (Authors[0] === '*' && Authors.length <= 1) || (Authors[0] !== '*' && Authors.length < checks)){
+                        if(receivedEmbed.fields[3].value === '*') { 
+                            receivedEmbed.fields[3].value = user.username;
+                        } else {
+                            receivedEmbed.fields[3].value = `${receivedEmbed.fields[3].value},${user.username}`;
+                        }
+                        const exampleEmbed = new MessageEmbed(receivedEmbed);
+                        msg.edit({ embeds: [exampleEmbed] });
                     }
-                    const exampleEmbed = new MessageEmbed(receivedEmbed);
+                }
+    
+                if(reaction.emoji.name === '❌')
+                    msg.delete();
+    
+                if(reaction.emoji.name === '⚛️'){
+                    const exampleEmbed = new MessageEmbed(receivedEmbed).setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Yes_Check_Circle.svg/2048px-Yes_Check_Circle.svg.png')
                     msg.edit({ embeds: [exampleEmbed] });
                 }
             }
-
-            if(reaction.emoji.name === '❌')
-                msg.delete();
-
-            if(reaction.emoji.name === '⚛️'){
-                const exampleEmbed = new MessageEmbed(receivedEmbed).setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Yes_Check_Circle.svg/2048px-Yes_Check_Circle.svg.png')
-                msg.edit({ embeds: [exampleEmbed] });
+            catch{
+                console.log('failed to manage emojis')
             }
         });
 })
@@ -105,11 +109,11 @@ Dclient.on('messageReactionRemove', async (reaction, user) => {
         }
 
         if(reaction.emoji.name === '⚛️' && reaction.count === 0){
-            const exampleEmbed = new MessageEmbed(receivedEmbed).setThumbnail('https://static.wikia.nocookie.net/esfuturama/images/9/9b/Roberto.png/revision/latest/scale-to-width-down/453?cb=20130123221057')
+            const exampleEmbed = new MessageEmbed(receivedEmbed).setThumbnail(receivedEmbed.author.iconURL)
             msg.edit({ embeds: [exampleEmbed] });
         }
     })
 })
-// 
+
 app.listen(port, () => { console.log ("API OK, running:", port)});
 
