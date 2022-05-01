@@ -7,7 +7,7 @@ const verifyToken = require('../middleware/auth');
 route.get('/', verifyToken, (req,res) => {
     const result = getprojects();
     result
-    .then( tickets => res.json({tickets}))
+    .then( project => res.json(project))
     .catch(err => {
         res.status(400).json({
             err
@@ -55,12 +55,82 @@ route.put('/:id', verifyToken,(req, res) => {
 
 });
 
+route.get('/by/author', verifyToken, (req,res) => {
+    const result = getProjectByAuthor(req.author._id);
+    result
+    .then( project => res.json(project))
+    .catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
+})
+
+route.put('/update/:id', verifyToken, (req,res) => {
+    const result = updateProject(req.params.id, req.body.color);
+    result
+    .then( ticket => {
+        ticket
+        res.json({ticket})
+    })
+    .catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
+});
+
 async function getprojects(){
-    return await Project.find({state:true}).populate('tickets','-author -__v')
+    return await Project.find({state:true}).populate('tickets','author')
 }
 
 async function getProjectById(id){
-    return await Project.find({state:true, _id:id}).populate('tickets','-author -__v')
+    return await Project.find({state:true, _id:id}).populate('tickets','author')
+}
+
+async function getProjectByAuthor(id){
+        const teamProject = await getprojects();
+
+        const filteredProjects =  teamProject.map( pro => {
+            const tickets = pro.tickets.filter( t => t.author.equals(id));
+            const ticketlength = tickets.length;
+            return {name:pro.name,color:pro.color, tickets:{tickets,count:ticketlength}};
+        })
+        
+        const FilteredteamProjectdata = teamProject.map( project => {
+            return {
+                B: project.tickets.length
+            };
+        });
+        
+        const pieChart = filteredProjects.map(project => {
+            return  {'name': project.name, 'value': project.tickets.count, 'color': project.color};
+        });
+        
+        const colors = filteredProjects.map( project => {
+            return project.color;
+        });
+        
+        const graph = filteredProjects.map(project => {
+            return {
+                subject  : project.name,
+                A        : project.tickets.count,
+                fullMark : 150
+            };
+        });
+        
+
+        const radarChart = graph.map( (pro, index) => {
+            return {...pro, ...FilteredteamProjectdata[index]};
+        });
+        
+
+
+        return { stats:{
+            radarChart,
+            pieChart,
+            colors,
+        } };
 }
 
 async function createProject(req){
@@ -77,13 +147,24 @@ async function updateProjectList(ticketId, projectId){
         throw new Error(err);
     }
 
-    let author = await Project.findOneAndUpdate({_id:projectId}, {
+    let project = await Project.findOneAndUpdate({_id:projectId}, {
         $push:{
             tickets : ticketId
         }
     },{new:true});
     
-    return author;
+    return project;
 }
 
+
+async function updateProject(projectId, color){
+    if(!projectId ||!color ){
+        throw new Error(err);
+    }
+
+    let project = await Project.findOneAndUpdate({_id:projectId}, { color },{new:true});
+    
+
+    return project;
+}
 module.exports = route

@@ -52,12 +52,34 @@ route.put('/:id', verifyToken, (req,res) => {
     });
 });
 
+route.get('/by/author', verifyToken, (req,res) => {
+    const result = getTicketsByAuthor(req.author._id);
+    result
+    .then( tickets =>
+        res.json(tickets))
+    .catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
+})
+
+async function getTicketsByAuthor(id){
+    const teamTickets = await getTickets();
+    const filteredTickets =  teamTickets.filter(ticket => ticket.author.id === id);
+
+    return ({
+        total: filteredTickets.length,
+        tickets: filteredTickets
+    })
+    }
+
 async function getTickets(){
-    return await Ticket.find().populate('author', 'name -_id').populate('project', 'name -_id');
+    return await Ticket.find().populate('author','name ').populate('project', 'name color -_id');
 }
 
 async function getTicketsById(id){
-    return await Ticket.find({_id:id}).populate('author', 'name -_id').populate('project', 'name -_id');
+    return await Ticket.find({_id:id}).populate('author', 'name').populate('project', 'name -_id');
 }
 
 async function createTicket(req){
