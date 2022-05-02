@@ -17,7 +17,7 @@ route.put('/', verifyToken, (req,res) => {
         res.status(400).json({
             err
         })
-    }
+    };
 })
 
 async function sendSMS (ticket,user){
@@ -40,6 +40,7 @@ async function sendSMS (ticket,user){
 	.setTimestamp()
     .setFooter({ text: `TicketBuilder v${version}` });
 
+    // Dclient.channels.cache.get(process.env.DCHANNELID).send('@here');
     Dclient.channels.cache.get(process.env.DCHANNELID).send({embeds: [exampleEmbed]});
 }
 

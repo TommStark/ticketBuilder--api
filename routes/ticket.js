@@ -4,7 +4,7 @@ const Ticket = require('../models/ticket_model');
 const verifyToken = require('../middleware/auth');
 
 
-route.get('/', verifyToken, (_req,res) => {
+route.get('/', verifyToken, (req,res) => {
     const result = getTickets();
     result
     .then( tickets => res.json({tickets}))
@@ -42,6 +42,7 @@ route.put('/:id', verifyToken, (req,res) => {
     const result = updateTicketDateAndStatus(req.params.id);
     result
     .then( ticket => {
+        ticket
         res.json({ticket})
     })
     .catch(err => {
@@ -74,11 +75,11 @@ async function getTicketsByAuthor(id){
     }
 
 async function getTickets(){
-    return Ticket.find().populate('author','name ').populate('project', 'name color -_id');
+    return await Ticket.find().populate('author','name ').populate('project', 'name color -_id');
 }
 
 async function getTicketsById(id){
-    return Ticket.find({_id:id}).populate('author', 'name').populate('project', 'name -_id');
+    return await Ticket.find({_id:id}).populate('author', 'name').populate('project', 'name -_id');
 }
 
 async function createTicket(req){
@@ -90,7 +91,7 @@ async function createTicket(req){
         checks        : req.body.checks,
         author        : req.author._id,        
     });
-    return ticket.save();
+    return await ticket.save();
 }
 
 async function updateTicketDateAndStatus(ticketId,isDone,date){
@@ -98,14 +99,14 @@ async function updateTicketDateAndStatus(ticketId,isDone,date){
         throw new Error('not working in updateTicketDateAndStatus ');
     }
     
-    return Ticket.findOneAndUpdate({_id:ticketId}, { isDone, end_date:date },{new:true});
+    return await Ticket.findOneAndUpdate({_id:ticketId}, { isDone, end_date:date },{new:true});
 }
 
 async function pushReviewer(ticketId, reviewerId){
     if(!ticketId){
         throw new Error('not working in pushReviewer ');
     }
-    return Ticket.findOneAndUpdate({_id:ticketId}, { 
+    return await Ticket.findOneAndUpdate({_id:ticketId}, { 
         $push:{
             reviewers : reviewerId
         }
@@ -115,7 +116,7 @@ async function pullReviewer(ticketId, reviewerId){
     if(!ticketId){
         throw new Error('not working in pullReviewer ');
     }
-    return Ticket.findOneAndUpdate({_id:ticketId}, { 
+    return await Ticket.findOneAndUpdate({_id:ticketId}, { 
         $pull:{
             reviewers : reviewerId
         }
