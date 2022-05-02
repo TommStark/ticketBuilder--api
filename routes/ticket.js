@@ -94,15 +94,38 @@ async function createTicket(req){
     return await ticket.save();
 }
 
-async function updateTicketDateAndStatus(ticketId){
+async function updateTicketDateAndStatus(ticketId,isDone,date){
     if(!ticketId){
-        throw new Error(err);
+        throw new Error('not working in updateTicketDateAndStatus ');
     }
     
-    let newTicket = await Ticket.findOneAndUpdate({_id:ticketId}, { state: true, end_date:new Date() },{new:true});
-
-    return newTicket;
+    return await Ticket.findOneAndUpdate({_id:ticketId}, { isDone, end_date:date },{new:true});
 }
 
+async function pushReviewer(ticketId, reviewerId){
+    if(!ticketId){
+        throw new Error('not working in pushReviewer ');
+    }
+    return await Ticket.findOneAndUpdate({_id:ticketId}, { 
+        $push:{
+            reviewers : reviewerId
+        }
+    },{new:true});
+}
+async function pullReviewer(ticketId, reviewerId){
+    if(!ticketId){
+        throw new Error('not working in pullReviewer ');
+    }
+    return await Ticket.findOneAndUpdate({_id:ticketId}, { 
+        $pull:{
+            reviewers : reviewerId
+        }
+    },{new:true});
+}
 
-module.exports = route
+module.exports = {
+    route,
+    updateTicketDateAndStatus,
+    pushReviewer,
+    pullReviewer
+}

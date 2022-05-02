@@ -9,6 +9,8 @@ const cors = require('cors');
 const Dclient = require('./middleware/DBot');
 const port = process.env.PORT || '8080';
 const { MessageEmbed } = require('discord.js');
+const { updateTicketDateAndStatus } = require('./routes/ticket') ;
+
 require('dotenv').config()
 
 
@@ -42,7 +44,7 @@ Dclient.on("ready", () => {
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use('/api/auth',auth);
-app.use('/api/ticket',ticket);
+app.use('/api/ticket',ticket.route);
 app.use('/api/author',author);
 app.use('/api/project',project);
 app.use('/api/discBot',discBot);
@@ -61,8 +63,10 @@ Dclient.on('messageReactionAdd', async (reaction, user) => {
         .then(msg =>{
             try{
                 const receivedEmbed = msg.embeds[0];
+                const ticketId = (receivedEmbed.author.name).split('#')[1]; 
                 const Authors = (receivedEmbed?.fields[3]?.value)?.split(',');
-                const checks = parseInt(receivedEmbed.fields[2].value);
+                const checks = parseInt((receivedEmbed.fields[2].value).split('/')[1]);
+
                 if(reaction.emoji.name === '👀'){
                     if( (Authors[0] === '*' && Authors.length <= 1) || (Authors[0] !== '*' && Authors.length < checks)){
                         if(receivedEmbed.fields[3].value === '*') { 
@@ -71,16 +75,32 @@ Dclient.on('messageReactionAdd', async (reaction, user) => {
                             receivedEmbed.fields[3].value = `${receivedEmbed.fields[3].value},${user.username}`;
                         }
                         const exampleEmbed = new MessageEmbed(receivedEmbed);
+                        ticket.pushReviewer(ticketId,user.username)
                         msg.edit({ embeds: [exampleEmbed] });
                     }
                 }
+
                 if(reaction.emoji.name === '❌' && reaction.count === 2){
                     msg.delete();
                 }
-    
+
+                if(reaction.emoji.name === '✅' && reaction.count <= checks){
+                    const checkSplit = (receivedEmbed.fields[2].value).split('/')
+                    const checkCount = parseInt(checkSplit[0])+1;
+                    receivedEmbed.fields[2].value =`${checkCount}/${checkSplit[1]}`
+                    const exampleEmbed = new MessageEmbed(receivedEmbed);
+                    msg.edit({ embeds: [exampleEmbed] });
+                }
+
+
                 if(reaction.emoji.name === '⚛️'){
+                    ticket.updateTicketDateAndStatus(ticketId,true,new Date());
                     const exampleEmbed = new MessageEmbed(receivedEmbed).setThumbnail('https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Yes_Check_Circle.svg/2048px-Yes_Check_Circle.svg.png')
                     msg.edit({ embeds: [exampleEmbed] });
+                }
+
+                if(reaction.emoji.name === '❤️‍🔥'){
+                    msg.delete();
                 }
             }
             catch{
@@ -102,14 +122,26 @@ Dclient.on('messageReactionRemove', async (reaction, user) => {
     .then(msg =>{
         try{
         const receivedEmbed = msg.embeds[0];
+        const ticketId = (receivedEmbed.author.name).split('#')[1]; 
+
         if(reaction.emoji.name === '👀'){
             const newReviewers = (receivedEmbed.fields[3].value).split(',').filter(name => name !== `${user.username}`).join(',');
             receivedEmbed.fields[3].value = !!newReviewers ? newReviewers : '*' ;
+            ticket.pullReviewer(ticketId,user.username)
+            const exampleEmbed = new MessageEmbed(receivedEmbed);
+            msg.edit({ embeds: [exampleEmbed] });
+        }
+
+        if(reaction.emoji.name === '✅'){
+            const checkSplit = (receivedEmbed.fields[2].value).split('/')
+            const checkCount = parseInt(checkSplit[0])-1;
+            receivedEmbed.fields[2].value =`${checkCount}/${checkSplit[1]}`
             const exampleEmbed = new MessageEmbed(receivedEmbed);
             msg.edit({ embeds: [exampleEmbed] });
         }
 
         if(reaction.emoji.name === '⚛️' && reaction.count === 0){
+            ticket.updateTicketDateAndStatus(ticketId,false, null);
             const exampleEmbed = new MessageEmbed(receivedEmbed).setThumbnail(receivedEmbed.author.iconURL)
             msg.edit({ embeds: [exampleEmbed] });
         }

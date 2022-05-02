@@ -21,21 +21,20 @@ route.put('/', verifyToken, (req,res) => {
 })
 
 async function sendSMS (ticket,user){
-    const {pr, vpdc, project, details, checks, version, projectColor} = ticket
+    const {pr, vpdc, project, details, checks, version, projectColor,id} = ticket
     
     const plural = checks > 1 ? 'Reviewers: ' : 'Reviewer: ';
-
 
     const exampleEmbed = new MessageEmbed()
 	.setColor(projectColor)
 	.setTitle(`Project ${project}`)
-	.setAuthor({ name: user.name, iconURL: user.img})
+	.setAuthor({ name: `${user.name} #${id}`, iconURL: user.img})
 	.setDescription(details)
 	.setThumbnail(user.img)
 	.addFields(
 		{ name: 'Pull Request: ', value: pr },
         { name: 'Jira: ', value: vpdc },
-		{ name: 'checks: ', value: checks.toString(), inline: true},
+		{ name: 'checks: ', value: `0/${checks.toString()}`, inline: true},
 	)
     .addField(plural, '*', true)
 	.setTimestamp()

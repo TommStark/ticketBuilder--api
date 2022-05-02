@@ -34,12 +34,15 @@ const ticketScheme = new mongoose.Schema({
     },
     end_date    : {
         type:Date, 
-        default:Date.now
+        default: null
     },
     isDone  : {
         type:Boolean, 
-        default:true
-        //TODO change the default value to false, when discord bot is implemented.
+        default:false
+    },
+    reviewers :{
+        type: [String],
+        default : [],
     }
 });
 
