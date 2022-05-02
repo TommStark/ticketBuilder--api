@@ -18,7 +18,7 @@ const schema = Joi.object({
         .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
 })
 
-route.get('/', verifyToken, (req,res) => {
+route.get('/', verifyToken, (_req,res) => {
     const result = getAuthors();
 
     result
@@ -53,15 +53,15 @@ route.post('/', (req,res) => {
             })
         }
     
-        const {error,value} = schema.validate({ name: body.name, email: body.email, password:body.password });
+        const {error} = schema.validate({ name: body.name, email: body.email, password:body.password });
 
         if(!error){
             const result = createAuthor(body);
             result
             .then( data => res.json({name: data.name, email: data.email, img: data.img}))
-            .catch(err => {
+            .catch(error => {
                 res.status(400).json({
-                    err
+                    error
                 })
             });
         }else{
@@ -78,7 +78,7 @@ route.put('/:id', verifyToken,(req, res) => {
     
     result.then( data => {
         res.json ({ data });
-    }).catch(err => {
+    }).catch(() => {
         res.status(400).json({
             err :'Bad Request'
         })
@@ -102,10 +102,10 @@ route.delete('/:email', verifyToken,(req, res) => {
 });
 
 async function getAuthors(){
-    return await Author.find({state:true}).select('name email tickets').populate('tickets','-author');
+    return Author.find({state:true}).select('name email tickets').populate('tickets','-author');
 }
 async function getAuthorById(id){
-    return await Author.findOne({state:true, _id:id}).select('name email tickets').populate('tickets','-author');
+    return Author.findOne({state:true, _id:id}).select('name email tickets').populate('tickets','-author');
 }
 
 async function deactivateAuthor( id ){
@@ -119,12 +119,11 @@ async function updateAuthor(ticketId, authorEmail){
         throw new Error(err);
     }
 
-    let author = await Author.findOneAndUpdate({email: authorEmail}, {
+    return Author.findOneAndUpdate({email: authorEmail}, {
         $push:{
             tickets : ticketId
         }
     },{new:true});
-        return author;
 }
 
 async function createAuthor(body){
@@ -135,7 +134,7 @@ async function createAuthor(body){
         password : bcrypt.hashSync(body.password,10)
         
     });
-    return await author.save();
+    return author.save();
 }
 
 

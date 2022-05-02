@@ -3,8 +3,6 @@ const jwt = require('jsonwebtoken');
 const route = express.Router();
 const Author = require('../models/author_model');
 const bcrypt = require('bcrypt');
-const config = require('config');
-const verifyToken = require('../middleware/auth');
 
 route.post('/',(req,res) => {
     Author.findOne({email:req.body.email}, (err,user) => {
@@ -47,8 +45,8 @@ route.get('/login', (req,res) => {
     Author.findOne({email:decodedToken?.email})
     .then(author => {
         if(author){
-            const token = req.get('Authorization');
-                jwt.verify(token, 'secret',(err, decoded) => {
+            const tokenAuth = req.get('Authorization');
+            jwt.verify(tokenAuth, 'secret',(err, _decoded) => {
             if(err){
                 return res.status(200).json({
                     logged_in: false,
@@ -71,7 +69,7 @@ route.get('/login', (req,res) => {
             })
         }
     })
-    .catch(err => {
+    .catch(() => {
         res.status(400).json({
             logged_in: false,
             msg:'you are not logged in'

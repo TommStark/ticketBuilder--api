@@ -4,12 +4,13 @@ const Project = require('../models/project_model');
 const verifyToken = require('../middleware/auth');
 
 
-route.get('/', verifyToken, (req,res) => {
+route.get('/', verifyToken, (_req,res) => {
     const result = getprojects();
     result
     .then( project => res.json(project))
     .catch(err => {
         res.status(400).json({
+            msg :'Bad Request',
             err
         })
     });
@@ -21,6 +22,7 @@ route.get('/:id', verifyToken, (req,res) => {
     .then( project => res.json({project}))
     .catch(err => {
         res.status(400).json({
+            msg :'Bad Request',
             err
         })
     });
@@ -32,6 +34,7 @@ route.post('/',verifyToken, (req,res) => {
     .then( data => res.json({project: data}))
     .catch(err => {
         res.status(400).json({
+            msg :'Bad Request',
             err
         })
     });
@@ -61,6 +64,7 @@ route.get('/by/author', verifyToken, (req,res) => {
     .then( project => res.json(project))
     .catch(err => {
         res.status(400).json({
+            msg :'Bad Request',
             err
         })
     });
@@ -75,17 +79,18 @@ route.put('/update/:id', verifyToken, (req,res) => {
     })
     .catch(err => {
         res.status(400).json({
+            msg :'Bad Request',
             err
         })
     });
 });
 
 async function getprojects(){
-    return await Project.find({state:true}).populate('tickets','author')
+    return Project.find({state:true}).populate('tickets','author')
 }
 
 async function getProjectById(id){
-    return await Project.find({state:true, _id:id}).populate('tickets','author')
+    return Project.find({state:true, _id:id}).populate('tickets','author')
 }
 
 async function getProjectByAuthor(id){
@@ -139,7 +144,7 @@ async function createProject(req){
         state         : req.body.state,
         icon          : req.body.icon,
     });
-    return await project.save();
+    return project.save();
 }
 
 async function updateProjectList(ticketId, projectId){
@@ -147,14 +152,12 @@ async function updateProjectList(ticketId, projectId){
         throw new Error(err);
     }
 
-    let project = await Project.findOneAndUpdate({_id:projectId}, {
+    return Project.findOneAndUpdate({_id:projectId}, {
         $push:{
             tickets : ticketId
         }
     },{new:true});
-    
-    return project;
-}
+    }
 
 
 async function updateProject(projectId, color){
@@ -162,9 +165,6 @@ async function updateProject(projectId, color){
         throw new Error(err);
     }
 
-    let project = await Project.findOneAndUpdate({_id:projectId}, { color },{new:true});
-    
-
-    return project;
+    return Project.findOneAndUpdate({_id:projectId}, { color },{new:true});
 }
 module.exports = route
