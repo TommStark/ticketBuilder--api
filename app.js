@@ -157,6 +157,7 @@ Dclient.on('messageCreate', async (msg) => {
             content:`
             Emoji commands:\n
             👀 : Assigns you as reviewer (the checks field determines the maximum).\n
+            ✅ : add a new check to the ticket.\n
             ⚛️  : Change the ticket to merged (modify the image).\n
             ❌ : Removes the ticket (3 reactions are needed).\n
             `
