@@ -9,7 +9,6 @@ const cors = require('cors');
 const Dclient = require('./middleware/DBot');
 const port = process.env.PORT || '8080';
 const { MessageEmbed } = require('discord.js');
-const { updateTicketDateAndStatus } = require('./routes/ticket') ;
 
 require('dotenv').config()
 
@@ -46,8 +45,8 @@ app.use(express.urlencoded({extended:true}));
 app.use('/api/auth',auth);
 app.use('/api/ticket',ticket.route);
 app.use('/api/author',author);
-app.use('/api/project',project);
-app.use('/api/discBot',discBot);
+app.use('/api/project',project.route);
+app.use('/api/discBot',discBot.route);
 
 
 Dclient.on('messageReactionAdd', async (reaction, user) => {
@@ -152,16 +151,17 @@ Dclient.on('messageReactionRemove', async (reaction, user) => {
 })
 
 Dclient.on('messageCreate', async (msg) => {    
-    if(msg.content === '/ticket-help'){
-        msg.reply({
-            content:`
-            Emoji commands:\n
-            👀 : Assigns you as reviewer (the checks field determines the maximum).\n
-            ✅ : add a new check to the ticket.\n
-            ⚛️  : Change the ticket to merged (modify the image).\n
-            ❌ : Removes the ticket (3 reactions are needed).\n
-            `
-        })
+
+    //TODO create object literal
+    
+    if(msg.content === '/roberto-help'){
+        discBot.ticketHelp(msg);
+    }
+    if(msg.content === '/roberto-lazy'){
+        discBot.ticketLazy(msg)
+    }
+    if(msg.content === '/roberto-status'){
+        discBot.ticketStats(msg, project);
     }
 
 })

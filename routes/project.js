@@ -15,6 +15,17 @@ route.get('/', verifyToken, (req,res) => {
     });
 })
 
+route.get('/all', verifyToken, (req,res) => {
+    const result = getAllprojects();
+    result
+    .then( project => res.json(project))
+    .catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
+})
+
 route.get('/:id', verifyToken, (req,res) => {
     const result = getProjectById(req.params.id);
     result
@@ -69,9 +80,8 @@ route.get('/by/author', verifyToken, (req,res) => {
 route.put('/update/:id', verifyToken, (req,res) => {
     const result = updateProject(req.params.id, req.body.color);
     result
-    .then( ticket => {
-        ticket
-        res.json({ticket})
+    .then( project => {
+        res.json({project})
     })
     .catch(err => {
         res.status(400).json({
@@ -80,16 +90,33 @@ route.put('/update/:id', verifyToken, (req,res) => {
     });
 });
 
+route.post('/update/status', verifyToken, (req,res) => {
+    const result = updateProjectStatus(req.body.id, req.body.status);
+    result
+    .then( project => {
+        res.json(project)
+    })
+    .catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
+});
+
+async function getAllprojects(){
+    return await Project.find().select('name state');
+}
+
 async function getprojects(){
-    return await Project.find({state:true}).populate('tickets','author')
+    return await Project.find({state:true}).populate('tickets','author');
 }
 
 async function getProjectById(id){
-    return await Project.find({state:true, _id:id}).populate('tickets','author')
+    return await Project.find({state:true, _id:id}).populate('tickets','author');
 }
 
 async function getProjectByAuthor(id){
-        const teamProject = await getprojects();
+        const teamProject = await Project.find({}).populate('tickets','author');
 
         const filteredProjects =  teamProject.map( pro => {
             const tickets = pro.tickets.filter( t => t.author.equals(id));
@@ -167,4 +194,18 @@ async function updateProject(projectId, color){
 
     return project;
 }
-module.exports = route
+
+async function updateProjectStatus(projectId, status){
+    if(!projectId){
+        throw new Error(err);
+    }
+
+    let project = await Project.findOneAndUpdate({_id:projectId}, { state:status },{new:true});
+    
+    return project;
+}
+
+module.exports = { 
+    route,
+    getAllprojects
+}
