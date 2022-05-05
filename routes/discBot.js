@@ -3,6 +3,8 @@ const route = express.Router();
 const verifyToken = require('../middleware/auth');
 const Dclient = require('../middleware/DBot');
 const { MessageEmbed } = require('discord.js');
+const project = require('./project')
+
 require('dotenv').config()
 
 route.put('/', verifyToken, (req,res) => {
@@ -11,7 +13,7 @@ route.put('/', verifyToken, (req,res) => {
 
     try{
         sendSMS(ticket,user);
-        res.json({ticket})
+        res.json({"ok":200})
     }
     catch(err){
         res.status(400).json({
@@ -19,6 +21,52 @@ route.put('/', verifyToken, (req,res) => {
         })
     };
 })
+
+route.post('/push/project',verifyToken, (req,res) => {
+    try{
+        sendmessageToChanell();
+        res.json({"ok":200})
+    }
+    catch(err){
+        res.status(400).json({
+            err
+        })
+    };
+})
+
+route.post('/scan/channel',verifyToken, (req,res) => {
+    try{
+        scanChannel();
+        res.json({"ok":200})
+    }
+    catch(err){
+        res.status(400).json({
+            err
+        })
+    };
+})
+
+
+async function scanChannel(){
+    let atLeastOne = false;
+
+    Dclient.channels.cache.get(process.env.DCHANNELID).messages.fetch({limit: 100}).then( res => {
+        res.map(msn => {
+            if(msn.author.bot && msn.embeds[0] != undefined ){
+                if(msn.embeds[0]?.thumbnail?.url != 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Yes_Check_Circle.svg/2048px-Yes_Check_Circle.svg.png'
+                && msn.embeds[0]?.thumbnail?.url != 'https://static.wikia.nocookie.net/esfuturama/images/9/9b/Roberto.png/revision/latest?cb=20130123221057'){
+                    atLeastOne = true;
+                    msn.reply({
+                        content: '@here Friendly reminder Team :rainbow: !'
+                    })
+                }
+            }
+        })
+        if(!atLeastOne){
+            Dclient.channels.cache.get(process.env.DCHANNELID).send('Congratulations team all tickets are merged!!! Here is a cookie 🍪');
+        } 
+    }); 
+}
 
 async function sendSMS (ticket,user){
     const {pr, vpdc, project, details, checks, version, projectColor,id} = ticket
@@ -41,6 +89,31 @@ async function sendSMS (ticket,user){
     .setFooter({ text: `TicketBuilder v${version}` });
 
     Dclient.channels.cache.get(process.env.DCHANNELID).send({embeds: [exampleEmbed]});
+}
+
+async function sendmessageToChanell(){
+    try{
+        const projects = await project.getAllprojects();
+
+        const exampleEmbed = new MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle(`Project Status`)
+        .setAuthor({ name: 'Roberto says', iconURL: 'https://static.wikia.nocookie.net/esfuturama/images/9/9b/Roberto.png/revision/latest?cb=20130123221057'})
+        .setDescription('Which project is available to merge?')
+        .setThumbnail('https://static.wikia.nocookie.net/esfuturama/images/9/9b/Roberto.png/revision/latest?cb=20130123221057')
+        .setTimestamp()
+
+        projects.forEach(pro => {
+            exampleEmbed.addFields({
+                name:pro.name, value:pro.state ?  '✅' :  '❌'
+            }
+            );
+        });
+
+        Dclient.channels.cache.get(process.env.DCCHANNELID_STATS).send({embeds: [exampleEmbed]});
+    }catch(err){
+        console.log('not possible to send message to channel')
+    }
 }
 
 
