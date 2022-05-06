@@ -18,11 +18,52 @@ const schema = Joi.object({
         .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
 })
 
+const EmailSchema = Joi.object({
+    email: Joi.string()
+    .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
+})
+
+const passSchema = Joi.object({
+    password: Joi.string()
+        .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+
+})
+
 route.get('/', verifyToken, (req,res) => {
     const result = getAuthors();
 
     result
     .then( authors => res.json({authors}))
+    .catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
+})
+
+
+route.get('/others', verifyToken, (req,res) => {
+    const authorId = req.author._id;
+    const result = getOtherAuthors();
+    
+    result
+    .then( authors => {
+        const filteredResult =  authors.filter(user => !(user._id.equals(authorId)))
+        res.json(filteredResult)
+    })
+    .catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
+})
+
+route.get('/myUser',verifyToken,(req,res)=>{
+    const authorId = req.author._id;
+
+    const result = getAuthorByIdFiltered(authorId);
+    result
+    .then( author => res.json(author))
     .catch(err => {
         res.status(400).json({
             err
@@ -52,7 +93,7 @@ route.post('/', (req,res) => {
                 msj:'user already exists'
             })
         }
-    
+
         const {error,value} = schema.validate({ name: body.name, email: body.email, password:body.password });
 
         if(!error){
@@ -69,6 +110,50 @@ route.post('/', (req,res) => {
         }
     })
 });
+
+
+route.put('/updateInfo', verifyToken, async (req,res)=>{
+    const authorId = req.author._id;
+    const { email} = req.body;
+
+    const {error,_value} = EmailSchema.validate({ email: email});
+
+    if(!error){
+        const updatedUser = await Author.findOneAndUpdate( {_id:authorId}, req.body, { new: true }).catch(error => {
+            return res.status(500).send(error);
+        });
+
+        return res.status(200).json({
+        message : "Updated user",
+        data: updatedUser
+        });
+    }else{
+        res.status(400).json({error});
+    }
+})
+
+route.put('/updateInfo/pass', verifyToken, async (req,res)=>{
+    const authorId = req.author._id;
+    const { password } = req.body;
+    
+    const {error,_value} = passSchema.validate({ password: password});
+
+    const encyptedPass = bcrypt.hashSync(password,10)
+
+    if(!error){
+        const updatedUser = await Author.findOneAndUpdate( {_id:authorId}, encyptedPass, { new: true }).catch(error => {
+            return res.status(500).send(error);
+        });
+
+        return res.status(200).json({
+        message : "Updated user",
+        data: {name: updatedUser.name, email: updatedUser.email}
+        });
+    }else{
+        res.status(400).json({error});
+    }
+})
+
 
 route.put('/:id', verifyToken,(req, res) => {
     const ticketId = req.params.id;
@@ -101,11 +186,21 @@ route.delete('/:email', verifyToken,(req, res) => {
 
 });
 
+
+
+async function getOtherAuthors(id){
+    return await Author.find({state:true}).select('-tickets -password');
+}
+
 async function getAuthors(){
     return await Author.find({state:true}).select('name email tickets').populate('tickets','-author');
 }
 async function getAuthorById(id){
     return await Author.findOne({state:true, _id:id}).select('name email tickets').populate('tickets','-author');
+}
+
+async function getAuthorByIdFiltered(id){
+    return await Author.findOne({state:true, _id:id}).select('-tickets -password');
 }
 
 async function deactivateAuthor( id ){
@@ -137,7 +232,5 @@ async function createAuthor(body){
     });
     return await author.save();
 }
-
-
 
 module.exports = route;

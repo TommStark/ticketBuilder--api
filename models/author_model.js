@@ -11,6 +11,10 @@ const authorScheme = new mongoose.Schema({
         type: String,
         required: true,
     },
+    lastName : {
+        type: String,
+        required: false,
+    },
     password : {
         type: String,
         required: true
@@ -32,7 +36,19 @@ const authorScheme = new mongoose.Schema({
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'Ticket',
         default : undefined,
-    }
+    },
+    phone : {
+        type: String,
+        required : false,
+    },
+    country : {
+        type: String,
+        required : false,
+    },
+    state_code : {
+        type: String,
+        required : false,
+    },
 });
 
 module.exports = mongoose.model('Author', authorScheme);
