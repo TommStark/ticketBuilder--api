@@ -33,7 +33,7 @@ route.put('/:id', verifyToken, (req, res) => {
     const data = req.body.id
 
     let result = updateNewsPosts(newsId,data);
-    
+
     result.then( data =>
         res.json(data)
     )
@@ -73,6 +73,7 @@ async function getNews(){
 async function createNews(req){
     let paper = new News({
         title          : req.body.title,
+        version        : req.body.version,
     });
     return await paper.save();
 }
