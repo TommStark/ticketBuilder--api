@@ -132,6 +132,22 @@ route.put('/updateInfo', verifyToken, async (req,res)=>{
     }
 })
 
+route.put('/appVersion', verifyToken,(req, res) => {
+    const authorEmail = req.author.email;
+    const version = req.body.version;
+
+    console.log(version);
+
+    const result = updateAppVersion(authorEmail,version);
+    
+    result.then( data => res.json(data))
+    .catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
+});
+
 route.put('/updateInfo/pass', verifyToken, async (req,res)=>{
     const authorId = req.author._id;
     const { password } = req.body;
@@ -201,6 +217,10 @@ route.delete('/:id', verifyToken, (req, res) => {
     });
 
 });
+
+async function updateAppVersion(id,version){
+    return await Author.findOneAndUpdate({email:id},{appVersion: version },{new:true})
+}
 
 async function removeTicket(id,ticketId){
     return await Project.updateOne({_id: id},{

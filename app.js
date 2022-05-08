@@ -4,6 +4,8 @@ const auth = require('./routes/auth')
 const project = require('./routes/project')
 const discBot = require('./routes/discBot')
 const express = require('express');
+const news = require('./routes/news');
+const post = require('./routes/post');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const Dclient = require('./middleware/DBot');
@@ -47,6 +49,8 @@ app.use('/api/ticket',ticket.route);
 app.use('/api/author',author);
 app.use('/api/project',project.route);
 app.use('/api/discBot',discBot.route);
+app.use('/api/news',news);
+app.use('/api/posts',post);
 
 
 Dclient.on('messageReactionAdd', async (reaction, user) => {

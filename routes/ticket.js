@@ -42,7 +42,6 @@ route.put('/:id', verifyToken, (req,res) => {
     const result = updateTicketDateAndStatus(req.params.id);
     result
     .then( ticket => {
-        ticket
         res.json({ticket})
     })
     .catch(err => {

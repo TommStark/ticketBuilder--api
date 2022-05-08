@@ -49,6 +49,19 @@ const authorScheme = new mongoose.Schema({
         type: String,
         required : false,
     },
+    rol : {
+        type: String,
+        required : false,
+    },
+    discordId : {
+        type: String,
+        required : false,
+    }, 
+    appVersion : {
+        type: String,
+        required : false,
+        default : '1.0.0',
+    },   
 });
 
 module.exports = mongoose.model('Author', authorScheme);
