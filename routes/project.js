@@ -103,6 +103,31 @@ route.post('/update/status', verifyToken, (req,res) => {
     });
 });
 
+
+route.delete('/:id', verifyToken, (req, res) => {
+    const { name } = req.body;
+    const result = removeTicket(name,req.params.id);
+    result.then( data => {
+        res.json ({
+            "msg":'Ticket deleted',
+            data
+        });
+    }).catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
+
+});
+
+async function removeTicket(name,ticketId){
+    return await Project.updateOne({name: name},{
+        $pullAll: {
+            tickets: [{_id: ticketId}],
+        },
+    })
+}
+
 async function getAllprojects(){
     return await Project.find().select('name state');
 }

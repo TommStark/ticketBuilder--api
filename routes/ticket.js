@@ -64,6 +64,23 @@ route.get('/by/author', verifyToken, (req,res) => {
     });
 })
 
+
+route.delete('/:id', verifyToken, (req, res) => {
+    let result = removeTicket(req.params.id);
+    result.then( data => {
+        res.json ({
+            "msg":'Ticket deleted',
+            data
+        });
+    }).catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
+
+});
+
+
 async function getTicketsByAuthor(id){
     const teamTickets = await getTickets();
     const filteredTickets =  teamTickets.filter(ticket => ticket.author.id === id);
@@ -72,7 +89,12 @@ async function getTicketsByAuthor(id){
         total: filteredTickets.length,
         tickets: filteredTickets
     })
-    }
+}
+
+async function removeTicket(ticketId){
+    return await Ticket.deleteOne({_id: ticketId})
+
+}
 
 async function getTickets(){
     return await Ticket.find().populate('author','name ').populate('project', 'name color -_id');

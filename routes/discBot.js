@@ -63,13 +63,13 @@ async function scanChannel(){
             }
         })
         if(!atLeastOne){
-            Dclient.channels.cache.get(process.env.DCHANNELID).send('Congratulations team all tickets are merged!!! Here is a cookie 🍪');
+            Dclient.channels.cache.get(process.env.DCHANNELID).send('Congratulations team all! We are up to date. Here is a cookie 🍪');
         } 
     }); 
 }
 
 async function sendSMS (ticket,user){
-    const {pr, vpdc, project, details, checks, version, projectColor,id} = ticket
+    const {prLink, ticketLink, project, details, checks, version, projectColor,id} = ticket
     
     const plural = checks > 1 ? 'Reviewers: ' : 'Reviewer: ';
 
@@ -80,8 +80,8 @@ async function sendSMS (ticket,user){
 	.setDescription(details)
 	.setThumbnail(user.img)
 	.addFields(
-		{ name: 'Pull Request: ', value: pr },
-        { name: 'Jira: ', value: vpdc },
+		{ name: 'Pull Request: ', value: prLink },
+        { name: 'Jira: ', value: ticketLink },
 		{ name: 'checks: ', value: `0/${checks.toString()}`, inline: true},
 	)
     .addField(plural, '*', true)
@@ -151,7 +151,7 @@ async function ticketStats (msg, project){
 }
 
 function ticketLazy(msg){
-    Dclient.channels.cache.get(msg.channelId).messages.fetch({limit: 100}).then( res => {
+    Dclient.channels.cache.get(msg.channelId).messages.fetch({limit: 50}).then( res => {
         res.map(msn => {
             if(msn.author.bot && msn.embeds[0] != undefined && msg.content === '/roberto-lazy'){
                 if(msn.embeds[0]?.thumbnail?.url != 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Yes_Check_Circle.svg/2048px-Yes_Check_Circle.svg.png'

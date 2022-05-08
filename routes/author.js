@@ -171,7 +171,7 @@ route.put('/:id', verifyToken,(req, res) => {
 
 });
 
-route.delete('/:email', verifyToken,(req, res) => {
+route.put('/:email', verifyToken,(req, res) => {
     const param = req.params.email;
 
     let result = deactivateAuthor(param);
@@ -186,7 +186,29 @@ route.delete('/:email', verifyToken,(req, res) => {
 
 });
 
+route.delete('/:id', verifyToken, (req, res) => {
+    const { authorId } = req.body;
+    const result = removeTicket(authorId,req.params.id);
+    result.then( data => {
+        res.json ({
+            "msg":'Ticket deleted',
+            data
+        });
+    }).catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
 
+});
+
+async function removeTicket(id,ticketId){
+    return await Project.updateOne({_id: id},{
+        $pullAll: {
+            tickets: [{_id: ticketId}],
+        },
+    })
+}
 
 async function getOtherAuthors(id){
     return await Author.find({state:true}).select('-tickets -password');
