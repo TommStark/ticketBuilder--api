@@ -15,6 +15,18 @@ route.get('/', verifyToken, (req,res) => {
     });
 })
 
+route.get('/by/author', verifyToken, (req,res) => {
+    const result = getTicketsByAuthor(req.author._id);
+    result
+    .then( tickets =>
+        res.json(tickets))
+    .catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
+})
+
 route.get('/:id', verifyToken, (req,res) => {
     const result = getTicketsById(req.params.id);
     result
@@ -51,17 +63,19 @@ route.put('/:id', verifyToken, (req,res) => {
     });
 });
 
-route.get('/by/author', verifyToken, (req,res) => {
-    const result = getTicketsByAuthor(req.author._id);
+route.put('/pending/:id', verifyToken, (req,res) => {
+    const result = updateTicket(req.params.id);
+    console.log(result)
     result
-    .then( tickets =>
-        res.json(tickets))
+    .then( ticket => {
+        res.json(ticket)
+    })
     .catch(err => {
         res.status(400).json({
             err
         })
     });
-})
+});
 
 
 route.delete('/:id', verifyToken, (req, res) => {
@@ -122,6 +136,14 @@ async function updateTicketDateAndStatus(ticketId,isDone,date){
     }
     
     return await Ticket.findOneAndUpdate({_id:ticketId}, { isDone, end_date:date },{new:true});
+}
+
+async function updateTicket(ticketId){
+    if(!ticketId){
+        throw new Error('not working in updateTicket ');
+    }
+    
+    return await Ticket.findOneAndUpdate({_id:ticketId}, { pending: false  },{new:true});
 }
 
 async function pushReviewer(ticketId, reviewerId){
