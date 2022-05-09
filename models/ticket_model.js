@@ -43,7 +43,11 @@ const ticketScheme = new mongoose.Schema({
     reviewers :{
         type: [String],
         default : [],
-    }
+    },
+    pending  : {
+        type:Boolean, 
+        default:false
+    },
 });
 
 module.exports = mongoose.model('Ticket', ticketScheme);

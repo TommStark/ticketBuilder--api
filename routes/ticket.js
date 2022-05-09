@@ -110,7 +110,8 @@ async function createTicket(req){
         project       : req.body.project,
         details       : req.body.details,
         checks        : req.body.checks,
-        author        : req.author._id,        
+        author        : req.author._id, 
+        pending       : req.body.pending,       
     });
     return await ticket.save();
 }

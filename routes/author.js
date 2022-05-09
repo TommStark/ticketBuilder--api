@@ -136,8 +136,6 @@ route.put('/appVersion', verifyToken,(req, res) => {
     const authorEmail = req.author.email;
     const version = req.body.version;
 
-    console.log(version);
-
     const result = updateAppVersion(authorEmail,version);
     
     result.then( data => res.json(data))

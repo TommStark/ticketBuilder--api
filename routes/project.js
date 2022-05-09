@@ -26,6 +26,17 @@ route.get('/all', verifyToken, (req,res) => {
     });
 })
 
+route.get('/by/author', verifyToken, (req,res) => {
+    const result = getProjectByAuthor(req.author._id);
+    result
+    .then( project => res.json(project))
+    .catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
+})
+
 route.get('/:id', verifyToken, (req,res) => {
     const result = getProjectById(req.params.id);
     result
@@ -46,8 +57,22 @@ route.post('/',verifyToken, (req,res) => {
             err
         })
     });
-
 });
+
+route.post('/update/status', verifyToken, (req,res) => {
+    const result = updateProjectStatus(req.body.id, req.body.status);
+    result
+    .then( project => {
+        res.json(project)
+    })
+    .catch(err => {
+        res.status(400).json({
+            err
+        })
+    });
+});
+
+
 
 route.put('/:id', verifyToken,(req, res) => {
     const ticketId = req.params.id;
@@ -66,16 +91,7 @@ route.put('/:id', verifyToken,(req, res) => {
 
 });
 
-route.get('/by/author', verifyToken, (req,res) => {
-    const result = getProjectByAuthor(req.author._id);
-    result
-    .then( project => res.json(project))
-    .catch(err => {
-        res.status(400).json({
-            err
-        })
-    });
-})
+
 
 route.put('/update/:id', verifyToken, (req,res) => {
     const result = updateProject(req.params.id, req.body.color);
@@ -89,20 +105,6 @@ route.put('/update/:id', verifyToken, (req,res) => {
         })
     });
 });
-
-route.post('/update/status', verifyToken, (req,res) => {
-    const result = updateProjectStatus(req.body.id, req.body.status);
-    result
-    .then( project => {
-        res.json(project)
-    })
-    .catch(err => {
-        res.status(400).json({
-            err
-        })
-    });
-});
-
 
 route.delete('/:id', verifyToken, (req, res) => {
     const { name } = req.body;
@@ -133,7 +135,7 @@ async function getAllprojects(){
 }
 
 async function getprojects(){
-    return await Project.find({state:true}).populate('tickets','author');
+    return await Project.find().populate('tickets','author');
 }
 
 async function getProjectById(id){
