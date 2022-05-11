@@ -91,8 +91,6 @@ route.put('/:id', verifyToken,(req, res) => {
 
 });
 
-
-
 route.put('/update/:id', verifyToken, (req,res) => {
     const result = updateProject(req.params.id, req.body.color);
     result
@@ -106,8 +104,9 @@ route.put('/update/:id', verifyToken, (req,res) => {
     });
 });
 
-route.delete('/:id', verifyToken, (req, res) => {
+route.put('/delete/:id', verifyToken, (req, res) => {
     const { name } = req.body;
+    console.log('name: ', name);
     const result = removeTicket(name,req.params.id);
     result.then( data => {
         res.json ({
@@ -119,15 +118,18 @@ route.delete('/:id', verifyToken, (req, res) => {
             err
         })
     });
-
 });
 
 async function removeTicket(name,ticketId){
-    return await Project.updateOne({name: name},{
-        $pullAll: {
-            tickets: [{_id: ticketId}],
-        },
-    })
+    console.log('ticketId: ', ticketId);
+    console.log('name: ', name);
+    return Project.updateOne(
+        {name: name},
+        { $pull: { tickets:  ticketId  } }
+        , { safe: true, multi:true }, function(err, obj) {
+            console.log('obj: ', obj);
+        });
+        
 }
 
 async function getAllprojects(){
@@ -135,7 +137,7 @@ async function getAllprojects(){
 }
 
 async function getprojects(){
-    return await Project.find().populate('tickets','author');
+    return await Project.find().populate('tickets');
 }
 
 async function getProjectById(id){

@@ -144,6 +144,22 @@ route.put('/appVersion', verifyToken,(req, res) => {
     });
 });
 
+route.put('/theme', verifyToken,(req, res) => {
+    const isDarkMode = req.body.theme;
+    const authorEmail = req.author.email;
+
+    let result = updateAuthorTheme(authorEmail, isDarkMode);
+    
+    result.then( data => {
+        res.json ({ data });
+    }).catch(err => {
+        res.status(400).json({
+            err :'Bad Request'
+        })
+    });
+});
+
+
 route.put('/updateInfo/pass', verifyToken, async (req,res)=>{
     const authorId = req.author._id;
     const { password } = req.body;
@@ -166,7 +182,6 @@ route.put('/updateInfo/pass', verifyToken, async (req,res)=>{
     }
 })
 
-
 route.put('/:id', verifyToken,(req, res) => {
     const ticketId = req.params.id;
     const authorEmail = req.author.email;
@@ -180,7 +195,6 @@ route.put('/:id', verifyToken,(req, res) => {
             err :'Bad Request'
         })
     });
-
 });
 
 route.put('/:email', verifyToken,(req, res) => {
@@ -198,9 +212,10 @@ route.put('/:email', verifyToken,(req, res) => {
 
 });
 
-route.delete('/:id', verifyToken, (req, res) => {
-    const { authorId } = req.body;
+route.put('/delete/:id', verifyToken, (req, res) => {
+    const authorId = req.author._id;
     const result = removeTicket(authorId,req.params.id);
+
     result.then( data => {
         res.json ({
             "msg":'Ticket deleted',
@@ -218,12 +233,18 @@ async function updateAppVersion(id,version){
     return await Author.findOneAndUpdate({email:id},{appVersion: version },{new:true})
 }
 
+async function updateAuthorTheme(id,darkMode){
+    return await Author.findOneAndUpdate({email:id},{darkMode: darkMode },{new:true})
+}
+
 async function removeTicket(id,ticketId){
-    return await Project.updateOne({_id: id},{
-        $pullAll: {
-            tickets: [{_id: ticketId}],
-        },
-    })
+    Author.updateOne(
+        { _id: id },
+        { $pull: { tickets:  ticketId  } }
+        , { safe: true, multi:true }, function(err, obj) {
+            console.log('obj: ', obj);
+        });
+        
 }
 
 async function getOtherAuthors(id){
@@ -231,10 +252,10 @@ async function getOtherAuthors(id){
 }
 
 async function getAuthors(){
-    return await Author.find({state:true}).select('name email tickets').populate('tickets','-author');
+    return await Author.find({state:true}).populate('tickets','-author');
 }
 async function getAuthorById(id){
-    return await Author.findOne({state:true, _id:id}).select('name email tickets').populate('tickets','-author');
+    return await Author.findOne({state:true, _id:id}).populate('tickets','-author -__v ');
 }
 
 async function getAuthorByIdFiltered(id){

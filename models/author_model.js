@@ -1,3 +1,4 @@
+const { boolean } = require('joi');
 const mongoose = require('mongoose');
 
 const authorScheme = new mongoose.Schema({
@@ -61,7 +62,11 @@ const authorScheme = new mongoose.Schema({
         type: String,
         required : false,
         default : '1.0.0',
-    },   
+    },
+    darkMode:{
+        type: Boolean,
+        default: false
+    }   
 });
 
 module.exports = mongoose.model('Author', authorScheme);
