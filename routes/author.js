@@ -43,13 +43,11 @@ route.get('/', verifyToken, (req,res) => {
 
 
 route.get('/others', verifyToken, (req,res) => {
-    const authorId = req.author._id;
     const result = getOtherAuthors();
     
     result
     .then( authors => {
-        const filteredResult =  authors.filter(user => !(user._id.equals(authorId)))
-        res.json(filteredResult)
+        res.json(authors)
     })
     .catch(err => {
         res.status(400).json({
