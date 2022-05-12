@@ -65,7 +65,6 @@ route.put('/:id', verifyToken, (req,res) => {
 
 route.put('/pending/:id', verifyToken, (req,res) => {
     const result = updateTicket(req.params.id);
-    console.log(result)
     result
     .then( ticket => {
         res.json(ticket)
@@ -110,7 +109,7 @@ async function removeTicket(ticketId){
 }
 
 async function getTickets(){
-    return await Ticket.find().populate('author','name ').populate('project', 'name color -_id');
+    return await Ticket.find().populate('author','name img').populate('project', 'name color -_id');
 }
 
 async function getTicketsById(id){
@@ -124,7 +123,7 @@ async function createTicket(req){
         project       : req.body.project,
         details       : req.body.details,
         checks        : req.body.checks,
-        author        : req.author._id, 
+        author        : req.body.UserId, 
         pending       : req.body.pending,       
     });
     return await ticket.save();

@@ -9,10 +9,10 @@ require('dotenv').config()
 
 route.put('/', verifyToken, (req,res) => {
     const ticket = req.body.ticket;
-    const user = req.author;
+    const author = req.author;
 
     try{
-        sendSMS(ticket,user);
+        sendSMS(ticket,author);
         res.json({"ok":200})
     }
     catch(err){
@@ -23,8 +23,9 @@ route.put('/', verifyToken, (req,res) => {
 })
 
 route.post('/push/project',verifyToken, (req,res) => {
+    const text = req.body.text;
     try{
-        sendmessageToChanell();
+        sendmessageToChanell(text);
         res.json({"ok":200})
     }
     catch(err){
@@ -68,8 +69,15 @@ async function scanChannel(){
     }); 
 }
 
-async function sendSMS (ticket,user){
+async function sendSMS (ticket,author){
     const {prLink, ticketLink, project, details, checks, version, projectColor,id} = ticket
+    let user;
+    
+    if(ticket.user){
+        user = ticket.user;
+    }else{
+        user = author;
+    }
     
     const plural = checks > 1 ? 'Reviewers: ' : 'Reviewer: ';
 
@@ -91,7 +99,7 @@ async function sendSMS (ticket,user){
     Dclient.channels.cache.get(process.env.DCHANNELID).send({embeds: [exampleEmbed]});
 }
 
-async function sendmessageToChanell(){
+async function sendmessageToChanell(text){
     try{
         const projects = await project.getAllprojects();
 
@@ -99,7 +107,7 @@ async function sendmessageToChanell(){
         .setColor('#0099ff')
         .setTitle(`Project Status`)
         .setAuthor({ name: 'Roberto says', iconURL: 'https://static.wikia.nocookie.net/esfuturama/images/9/9b/Roberto.png/revision/latest?cb=20130123221057'})
-        .setDescription('Which project is available to merge?')
+        .setDescription(text)
         .setThumbnail('https://static.wikia.nocookie.net/esfuturama/images/9/9b/Roberto.png/revision/latest?cb=20130123221057')
         .setTimestamp()
 

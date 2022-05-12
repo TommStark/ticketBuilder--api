@@ -106,7 +106,6 @@ route.put('/update/:id', verifyToken, (req,res) => {
 
 route.put('/delete/:id', verifyToken, (req, res) => {
     const { name } = req.body;
-    console.log('name: ', name);
     const result = removeTicket(name,req.params.id);
     result.then( data => {
         res.json ({
@@ -121,13 +120,13 @@ route.put('/delete/:id', verifyToken, (req, res) => {
 });
 
 async function removeTicket(name,ticketId){
-    console.log('ticketId: ', ticketId);
-    console.log('name: ', name);
+    
+    
     return Project.updateOne(
         {name: name},
         { $pull: { tickets:  ticketId  } }
         , { safe: true, multi:true }, function(err, obj) {
-            console.log('obj: ', obj);
+            console.log('obj: ', obj);   
         });
         
 }

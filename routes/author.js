@@ -184,7 +184,7 @@ route.put('/updateInfo/pass', verifyToken, async (req,res)=>{
 
 route.put('/:id', verifyToken,(req, res) => {
     const ticketId = req.params.id;
-    const authorEmail = req.author.email;
+    const authorEmail = req.body.email;
 
     let result = updateAuthor(ticketId, authorEmail);
     
@@ -242,13 +242,13 @@ async function removeTicket(id,ticketId){
         { _id: id },
         { $pull: { tickets:  ticketId  } }
         , { safe: true, multi:true }, function(err, obj) {
-            console.log('obj: ', obj);
+            
         });
         
 }
 
 async function getOtherAuthors(id){
-    return await Author.find({state:true}).select('-tickets -password');
+    return await Author.find({state:true}).select('-password').populate('tickets');
 }
 
 async function getAuthors(){
