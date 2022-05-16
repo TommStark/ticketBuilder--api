@@ -15,6 +15,57 @@ route.get('/', verifyToken, (req,res) => {
     });
 })
 
+route.get('/author', verifyToken, async (req,res) => {
+
+    const from = Number(req.query.from || 0);
+    const perPage = Number(req.query.limit || 5);
+    const authorId = req.author._id;
+    const startIndex = ( from - 1 ) * perPage;
+    const result = {}
+
+    
+    if(startIndex > 0){
+        result.previous = {
+            page: from - 1,
+            limit :perPage
+        }
+    }
+
+    Ticket.find({author:{_id:authorId}})
+    .sort({'start_date': 'desc'})
+    .skip(startIndex)
+    .limit(perPage)
+    .populate('author','name img')
+    .populate('project', 'name color -_id')
+    .exec( (err,tickets)=>{
+        if(err) {
+            return res.status(400).json({
+                ok:false,
+                err   
+            })
+        };
+    
+        Ticket.count({author:{_id:authorId}},(_err, count) =>{
+            const pages = Math.round(count/perPage)
+
+            if(from < pages){
+                result.next ={
+                    page : from + 1,
+                    limit : perPage
+                }
+            }
+            res.json({
+                ok:true,
+                pages,
+                result,
+                tickets:tickets,
+            });
+        });
+    });
+
+
+})
+
 route.get('/by/author', verifyToken, (req,res) => {
     const result = getTicketsByAuthor(req.author._id);
     result
@@ -26,6 +77,8 @@ route.get('/by/author', verifyToken, (req,res) => {
         })
     });
 })
+
+
 
 route.get('/:id', verifyToken, (req,res) => {
     const result = getTicketsById(req.params.id);
@@ -75,7 +128,6 @@ route.put('/pending/:id', verifyToken, (req,res) => {
         })
     });
 });
-
 
 route.delete('/:id', verifyToken, (req, res) => {
     let result = removeTicket(req.params.id);

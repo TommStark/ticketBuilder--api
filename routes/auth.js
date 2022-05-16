@@ -7,7 +7,7 @@ const config = require('config');
 const verifyToken = require('../middleware/auth');
 
 route.post('/',(req,res) => {
-    Author.findOne({email:req.body.email}, (err,user) => {
+    Author.findOne({state:true, email:req.body.email}, (err,user) => {
         if(err)
             return res.status(500).json({error:'internal server error'});
         if(user && (req.body.password && req.body.email) ){
