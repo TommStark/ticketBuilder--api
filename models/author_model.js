@@ -66,7 +66,16 @@ const authorScheme = new mongoose.Schema({
     darkMode:{
         type: Boolean,
         default: false
-    }   
+    },
+    admin:{
+        type: Boolean,
+        required : false,
+        default : false,   
+    },
+    superAdmin:{
+        type: Boolean,
+        required : false,
+        default : false,   
+    },
 });
-
 module.exports = mongoose.model('Author', authorScheme);

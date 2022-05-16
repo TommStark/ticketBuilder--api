@@ -49,7 +49,7 @@ app.use('/api/ticket',ticket.route);
 app.use('/api/author',author);
 app.use('/api/project',project.route);
 app.use('/api/discBot',discBot.route);
-app.use('/api/news',news);
+app.use('/api/news',news.route);
 app.use('/api/posts',post);
 
 

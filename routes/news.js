@@ -67,7 +67,7 @@ async function updateVersion(newsId, version){
 }
 
 async function getNews(){
-    return await (await News.find().select('-_id -__v').populate('posts'));
+    return await (await News.find().select('-__v').populate('posts'));
 }
 
 async function createNews(req){
@@ -92,4 +92,4 @@ async function updateNewsPosts(newsId,postId){
     return paper;
 }
 
-module.exports = route;
+module.exports = {route,updateNewsPosts};
