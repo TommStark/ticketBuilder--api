@@ -46,7 +46,7 @@ route.get('/author', verifyToken, async (req,res) => {
         };
     
         Ticket.count({author:{_id:authorId}},(_err, count) =>{
-            const pages = Math.round(count/perPage)
+            const pages = Math.ceil(count/perPage)
 
             if(from < pages){
                 result.next ={
